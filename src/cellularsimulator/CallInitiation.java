@@ -42,7 +42,7 @@ public class CallInitiation extends CallEvent{
     }
     
     public double getDurationInCell () {
-        return (BaseStation.DIAMETER - this.position) / this.speed;
+        return Math.min((BaseStation.DIAMETER - this.position) / this.speed, this.duration);
     }
     
     public double getRemainingDuration () {

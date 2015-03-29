@@ -21,7 +21,11 @@ public class CallHandover extends CallEvent{
     }
     
     public double getDurationInCell () {
-        return BaseStation.DIAMETER / this.speed;
+        return Math.min(BaseStation.DIAMETER / this.speed, this.duration);
+    }
+    
+    public double getRemainingDuration () {
+        return this.duration - this.getDurationInCell();
     }
 
     public double getSpeed() {
