@@ -11,4 +11,21 @@ package cellularsimulator;
  */
 public abstract class CallEvent {
     
+    private final double time;
+    private final int stationId;
+    
+    public CallEvent (double time, int stationId) {
+        this.time = time;
+        this.stationId = stationId;
+    }
+
+    public double getTime() {
+        return time;
+    }
+
+    public int getStationId() {
+        return stationId;
+    }   
+    
+    
 }
