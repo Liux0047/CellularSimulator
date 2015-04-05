@@ -15,20 +15,14 @@ public class CallInitiation extends CallEvent{
     private final double position;    
     private final double duration;
 
-    public CallInitiation(double time, int stationId, double speed, double duration) {
+    public CallInitiation(double time, int stationId, double speed, double duration, double position) {
         super(time, stationId);
         this.speed = speed;
-        this.duration = duration;
-        
-        this.position = this.generatePosition();
+        this.duration = duration;        
+        this.position = position;
         
     }
     
-    private double generatePosition () {
-        //call initiation position inside a cell is uniformly distributed
-        return Math.random() * BaseStation.DIAMETER;
-    }
-
     public double getSpeed() {
         return speed;
     }
