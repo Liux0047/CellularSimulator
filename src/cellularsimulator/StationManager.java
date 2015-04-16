@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class StationManager {
     
     public static final int STATION_COUNT = 20;
+    private int scheme;
     
     private ArrayList<BaseStation> stations = new ArrayList<>();
     
@@ -33,10 +34,21 @@ public class StationManager {
         for (int i = 0; i< StationManager.STATION_COUNT; i++){
             stations.add(new BaseStation(FCA_SCHEME));
         }
+        this.scheme = FCA_SCHEME;
     }
     
     public BaseStation getStation (int index){
         return stations.get(index);
     }
+
+    public int getScheme() {
+        return scheme;
+    }
+    
+    public void reset() {
+        this.stations = new ArrayList<>();
+    }
+    
+    
     
 }

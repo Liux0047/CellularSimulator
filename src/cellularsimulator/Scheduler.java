@@ -5,6 +5,10 @@
  */
 package cellularsimulator;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -19,6 +23,7 @@ public class Scheduler {
     private int successfulCallCount = 0;
 
     private final int warmUpInterval = 1000;
+    private final int warmUpCallCount = 2000;
     private boolean[] intervalBlockedCall;
     private int[] intervalDropppedCall;
     private double[] AvgBlocked;
@@ -59,10 +64,8 @@ public class Scheduler {
     }
 
     public void scheduleEvent(CallEvent event) {
-
         int index = this.getInsertIndex(event.getTime(), 0, this.eventList.size());
         eventList.add(index, event);
-
     }
 
     public void advanceClock() {
@@ -71,13 +74,10 @@ public class Scheduler {
 
         if (currentEvent instanceof CallInitiation) {
             this.handleInitiation((CallInitiation) currentEvent);
-            //System.out.println(this.clock + ": Initiation from Station " + currentEvent.getStationId());
         } else if (currentEvent instanceof CallHandover) {
             this.handleHandover((CallHandover) currentEvent);
-            //System.out.println(this.clock + ": Handover from Station " + currentEvent.getStationId());
         } else if (currentEvent instanceof CallTermination) {
             this.handleTermination((CallTermination) currentEvent);
-            //System.out.println(this.clock + ": Termination in Station " + currentEvent.getStationId());
         }
 
     }
@@ -89,13 +89,28 @@ public class Scheduler {
             System.out.println("Dropped Calls: " + this.droppedCallCount);
             System.out.println("Successful Calls: " + this.successfulCallCount);
 
-            this.recordWarmUp();
+            //this.recordWarmUp();
+            this.recordResult();
             this.reset();
             return true;
         } else {
             return false;
         }
 
+    }
+
+    public void recordResult() {
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("output.txt", true)))) {
+            writer.print(this.totalCallCount - this.warmUpCallCount + " ");
+            writer.print(this.blockedCallCount + " ");
+            writer.print(this.droppedCallCount + " ");
+            
+            if (StationManager.getInstance().getScheme() == BaseStation.RESERVATION_1){
+                writer.println();
+            }
+        } catch (IOException e) {
+            //exception handling left as an exercise for the reader
+        }
     }
 
     public void recordWarmUp() {
@@ -144,7 +159,9 @@ public class Scheduler {
 
         BaseStation baseStation = StationManager.getInstance().getStation(initiationEvent.getStationId());
         if (!baseStation.allocateNewCall()) {    //if allocate new call fails
-            this.blockedCallCount++;
+            if (this.totalCallCount > this.warmUpCallCount) {
+                this.blockedCallCount++;
+            }
             this.intervalBlockedCall[this.totalCallCount - 1] = true;
         } else {
             if (initiationEvent.getDurationInCell() < initiationEvent.getDuration()) {
@@ -183,7 +200,9 @@ public class Scheduler {
 
         BaseStation nextStation = StationManager.getInstance().getStation(handoverEvent.getStationId() + 1);
         if (!nextStation.allocateHandover()) {
-            this.droppedCallCount++;
+            if (this.totalCallCount > this.warmUpCallCount) {
+                this.droppedCallCount++;
+            }
             this.intervalDropppedCall[this.totalCallCount - 1]++;
         } else {
             if (handoverEvent.getDurationInCell() < handoverEvent.getDuration()) {

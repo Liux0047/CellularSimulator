@@ -28,22 +28,30 @@ public class CellularSimulator {
     public static void main(String[] args) {
 
         int size = 10000;
-
-        //StationManager.getInstance().initStations(BaseStation.NO_RESERVATION);
-        StationManager.getInstance().initStations(BaseStation.RESERVATION_1);
+        StationManager stationMgr = StationManager.getInstance();
         Scheduler schedular = Scheduler.getInstance();
         schedular.setSize(size);
 
-        int numRuns = 30;
+        int numRuns = 100;
         for (int i = 0; i < numRuns; i++) {
             generateData(size);
-            readData();
+            
+            readData();            
+            stationMgr.initStations(BaseStation.NO_RESERVATION);
             while (!schedular.isTerminated()) {
                 schedular.advanceClock();
             }
+            stationMgr.reset();
+            
+            readData();
+            stationMgr.initStations(BaseStation.RESERVATION_1);
+            while (!schedular.isTerminated()) {
+                schedular.advanceClock();
+            }
+            stationMgr.reset();
         }
 
-        outputWarmUp(schedular, size, numRuns);
+        //outputWarmUp(schedular, size, numRuns);
 
     }
 
